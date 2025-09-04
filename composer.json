@@ -1,0 +1,18 @@
+{
+    "name": "jasonmce/dynamic_text_token",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "autoload": {
+        "psr-4": {
+            "Jasonmce\\DynamicTextToken\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "JasonMcE",
+            "email": "dynamic-text-token@brightshinyobject.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
