@@ -1,0 +1,7 @@
+runtime:
+  js:
+    js/dynamic_text_token.runtime.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - dynamic_token_manager/base

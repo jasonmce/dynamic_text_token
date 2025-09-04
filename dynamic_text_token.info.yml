@@ -1,0 +1,7 @@
+name: Dynamic Text Token
+type: module
+description: Provides DynamicTextToken plugin with live AJAX updates.
+core_version_requirement: '^10 || ^11'
+package: Dynamic Tokens
+dependencies:
+  - drupal:dynamic_token_manager

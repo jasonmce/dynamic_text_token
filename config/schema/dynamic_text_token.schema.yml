@@ -1,0 +1,12 @@
+dynamic_token_manager.dynamic_token_instance.*.plugin_config:
+  type: mapping
+  label: 'Dynamic Text Token config'
+  mapping:
+    values:
+      type: sequence
+      label: 'Values'
+      sequence:
+        type: string
+    seed:
+      type: integer
+      label: 'Seed'

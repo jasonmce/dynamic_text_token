@@ -1,0 +1,9 @@
+dynamic_text_token.next_value:
+  path: '/dynamic-token/{dynamic_token_instance}/next'
+  defaults:
+    _controller: '\Drupal\dynamic_text_token\Controller\NextValueController::next'
+  requirements:
+    _permission: 'access content'
+    dynamic_token_instance: '[a-z0-9_]+'
+  options:
+    _format: 'json'
