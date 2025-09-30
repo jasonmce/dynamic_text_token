@@ -1,4 +1,4 @@
-dynamic_token_manager.dynamic_token_instance.*.plugin_config:
+dynamic_token_manager.dynamic_token_instance.*.plugin_config.dynamic_text_token:
   type: mapping
   label: 'Dynamic Text Token config'
   mapping:
