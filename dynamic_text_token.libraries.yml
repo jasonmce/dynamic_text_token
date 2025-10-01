@@ -1,4 +1,7 @@
 runtime:
+  css:
+    theme:
+      css/crossfade.css: {}
   js:
     js/dynamic_text_token.runtime.js: {}
   dependencies:
