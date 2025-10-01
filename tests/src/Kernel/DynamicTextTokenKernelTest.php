@@ -6,6 +6,7 @@ use Drupal\dynamic_token_manager\Entity\DynamicTokenInstance;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
+use Drupal\Component\Utility\Html;
 
 /**
  * @group dynamic_tokens
@@ -13,47 +14,11 @@ use Drupal\node\Entity\Node;
 class DynamicTextTokenKernelTest extends KernelTestBase {
 
   protected static $modules = [
-    'system', 'user',
+    'system', 
     'dynamic_token_manager',
     'dynamic_text_token',
+    'filter',
   ];
-
-  protected function setUp(): void {
-    parent::setUp();
-    $this->installEntitySchema('user');
-    $this->installConfig(['dynamic_token_manager']);
-    $this->enableFilter('full_text', 'dynamic_tokens');
-  }
-
-  /**
-   * Enable a filter on a given text format.
-   */
-  protected function enableFilter($format_id, $filter_id) {
-    // Load the text format.
-    $format = FilterFormat::load($format_id);
-  
-    if ($format) {
-      $filters = $format->get('filters');
-  
-      // If the filter exists in the format definition, enable it.
-      if (isset($filters[$filter_id])) {
-        $filters[$filter_id]['status'] = TRUE;
-
-  
-        $format->set('filters', $filters);
-        $format->save();
-  
-        \Drupal::logger('mymodule')->notice("Enabled filter {$filter_id} on format {$format_id}.");
-      }
-      else {
-        \Drupal::logger('mymodule')->warning("Filter {$filter_id} not found in format {$format_id}.");
-      }
-    }
-    else {
-      \Drupal::logger('mymodule')->error("Text format {$format_id} not found.");
-    }
-  }
-  
 
   public function testValueStableWithinBucket() {
     $instance = DynamicTokenInstance::create([
@@ -72,17 +37,68 @@ class DynamicTextTokenKernelTest extends KernelTestBase {
     $v2 = $plugin->value();
     $this->assertSame($v1, $v2, 'Value remains stable within bucket');
     $this->assertNotSame('', $v1);
+  } 
 
-    $node = Node::create([
-      'type' => 'article',
-      'title' => 'Test',
-      'body' => [
-        'value' => 'before [dynamic:greet] after',
-        'format' => 'full_text',
+  public function testValueChangesWithFilter() {
+    $instance = DynamicTokenInstance::create([
+      'id' => 'greet',
+      'label' => 'Greet',
+      'plugin' => 'dynamic_text_token',
+      'speed' => 5,
+      'plugin_config' => ['values' => ['NEW VALUE'], 'seed' => 42],
+      'status' => TRUE,
+    ]);
+    $instance->save();
+
+    // Ensure the full_html text format exists and has the dynamic_tokens filter enabled.
+    $format = FilterFormat::create([
+      'format' => 'dynamic_text_token_test',
+      'name' => 'Dynamic Text Token Test',
+      'status' => TRUE,
+      'weight' => 0,
+      'filters' => [
+        'dynamic_tokens' => [
+          'status' => TRUE,
+          'settings' => [],
+          'weight' => 0,
+        ],
       ],
     ]);
-    $node->save();
-    $this->assertNotSame('before [dynamic:greet] after', $node->body->value);
+    $format->save();
+
+    // Apply the text format and verify that the token was processed.
+    $input = 'before [dynamic:greet] after';
+    $output = check_markup($input, 'dynamic_text_token_test');
+    $this->assertIsString($output->__toString());
+    $this->assertStringNotContainsString('[dynamic:greet]', $output->__toString());
+    $this->assertStringContainsString('NEW VALUE', $output->__toString());
+
+    // Verify the wrapper span and its attributes are present.
+    $html = $output->__toString();
+    $doc = Html::load($html);               // Returns \DOMDocument
+    $xpath = new \DOMXPath($doc);
+    $nodes = $xpath->query('//span');
+    $this->assertNotEmpty($nodes);
+
+    /** @var \DOMElement $span */
+    $span = $nodes->item(0);
+    
+    $this->assertNotNull($span);
+
+    // Verify class is in the list
+    $classes = preg_split('/\s+/', trim($span->getAttribute('class')));
+    $this->assertContains('dynamic-token', $classes);
+
+    // Verify attributes
+    $this->assertSame('greet', $span->getAttribute('data-token-id'));
+    $this->assertSame('dynamic_text_token', $span->getAttribute('data-token-type-id'));
+    $this->assertSame('5', $span->getAttribute('data-speed'));
+    $this->assertSame('status', $span->getAttribute('role'));
+    $this->assertSame('polite', $span->getAttribute('aria-live'));
+    
+
+    // Verify the span contains the token value
+    $this->assertSame('NEW VALUE', $span->textContent); 
   }
 
 }
