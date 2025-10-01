@@ -15,7 +15,7 @@ I have had this effect on my personal website's [Profile](https://www.JasonMcEac
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage](#usage)
+- [Using Tokens](#using-tokens)
 - [API](#api)
 - [Unit Tests](#unit-tests)
 - [Maintainers](#maintainers)
@@ -31,8 +31,6 @@ I have had this effect on my personal website's [Profile](https://www.JasonMcEac
 
 - Drupal >= 10.x
 - Dynamic token manager module
-- Token module
-- Filter module
 
 ## Installation
 
@@ -94,9 +92,16 @@ drush en dynamic_text_token
 3. Save.
 
 
-### Using Tokens
+## Using Tokens
 
-You can use your dynamic tokens anywhere Drupal tokens are supported, or content fields that use a Text Format which has the "Dynamic Tokens" filter enabled.
+### Tokens module
+
+If you enable the Tokens module, you can use your dynamic tokens anywhere Drupal tokens are supported.
+
+### Filter module
+
+If you enable the Filter module, you will be able to use your dynamic tokens in content fields that use a Text Format which has the "Dynamic Tokens" filter enabled.
+
 
 ```
 [dynamic:my_token_name]
